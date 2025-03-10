@@ -1,13 +1,13 @@
-package org.seats.backend;
+package org.seats;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class BackendApplication {
+public class SeatsApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(BackendApplication.class, args);
+		SpringApplication.run(SeatsApplication.class, args);
 	}
 
 }
