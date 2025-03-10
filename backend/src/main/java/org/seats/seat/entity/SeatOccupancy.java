@@ -1,5 +1,7 @@
 package org.seats.seat.entity;
 
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.SoftDelete;
@@ -20,6 +22,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Getter
 @Setter
@@ -27,7 +30,8 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "seat_occcupancy")
+@EntityListeners(AuditingEntityListener.class)
+@Table(name = "seat_occcupancy", uniqueConstraints = { @UniqueConstraint(columnNames = {"start_time", "seat_id"})})
 public class SeatOccupancy {
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -45,15 +49,12 @@ public class SeatOccupancy {
 	@Column(name = "start_time", nullable = false)
 	private LocalDateTime startTime;
 
-	@Column(name = "end_time", nullable = false)
-	private LocalDateTime endTime;
-
 	@CreatedDate
-	@Column(name = "created_at", nullable = false)
+	@Column(name = "created_at")
 	private LocalDateTime createdAt;
 
 	@LastModifiedDate
-	@Column(name = "updated_at", nullable = false)
+	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
 
 	@SoftDelete
