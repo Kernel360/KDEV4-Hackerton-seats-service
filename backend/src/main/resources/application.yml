@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/seats-db
+    username: seats
+    password: seat0310
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
