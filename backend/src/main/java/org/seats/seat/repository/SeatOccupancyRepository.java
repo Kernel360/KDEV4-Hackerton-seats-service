@@ -22,4 +22,7 @@ public interface SeatOccupancyRepository extends JpaRepository<SeatOccupancy, Lo
     // 특정 시간 범위에 예약된 좌석들을 조회
     List<SeatOccupancy> findByStartTimeBetween(LocalDateTime startOfPeriod, LocalDateTime endOfPeriod);
 
+    // 유저가 예약한 예약 목록을 조회
+    List<SeatOccupancy> findByUserId(Long userId);
+
 }

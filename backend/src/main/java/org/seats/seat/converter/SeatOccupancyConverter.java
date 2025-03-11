@@ -3,6 +3,7 @@ package org.seats.seat.converter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import lombok.RequiredArgsConstructor;
+import org.seats.seat.domain.MyOccupancyListResponse;
 import org.seats.seat.domain.OccupancyRequest;
 import org.seats.seat.domain.OccupancyResponse;
 import org.seats.seat.entity.Seat;
@@ -41,6 +42,14 @@ public class SeatOccupancyConverter {
             .userId(seatOccupancy.getUser().getId())
             .seatId(seatOccupancy.getSeat().getId())
             .startTime(seatOccupancy.getStartTime().format(formatter))
+            .build();
+    }
+
+    public MyOccupancyListResponse toMyOccupancyListResponse(SeatOccupancy seatOccupancy) {
+        return MyOccupancyListResponse.builder()
+            .seatId(seatOccupancy.getSeat().getId())
+            .seatName(seatOccupancy.getSeat().getName()) // 좌석 이름
+            .startTime(seatOccupancy.getStartTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))) // 시작 시간 포맷
             .build();
     }
 }
