@@ -35,7 +35,6 @@ public class SeatOccupancyService {
         // 모든 예약 정보를 조회
         List<SeatOccupancy> seatOccupancies = seatOccupancyRepository.findAll();
 
-        // SeatOccupancy 목록을 OccupancyListResponse 목록으로 변환
         return seatOccupancies.stream()
             .map(occupancy -> {
                 String seatName = occupancy.getSeat().getName();
@@ -45,10 +44,42 @@ public class SeatOccupancyService {
 
                 // 필요한 정보를 가지고 OccupancyListResponse 생성
                 return new OccupancyListResponse(
-                    occupancy.getUser().getId(),          // userId
-                    occupancy.getSeat().getId(),          // seatId
-                    seatName,                             // seatName
-                    formattedStartTime                    // startTime as string
+                    occupancy.getUser().getId(),
+                    occupancy.getSeat().getId(),
+                    seatName,
+                    formattedStartTime
+                );
+            })
+            .collect(Collectors.toList());
+    }
+
+    // 실시간 예약 현황 보기
+    public List<OccupancyListResponse> getNowOccupanyList() {
+        // 현재 시간
+        LocalDateTime now = LocalDateTime.now();
+
+        // 현재 시간의 시간 범위
+        LocalDateTime startOfCurrentHour = now.withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime endOfCurrentHour = startOfCurrentHour.plusHours(1);
+
+        // 해당 시간대에 예약된 모든 좌석을 조회
+        List<SeatOccupancy> seatOccupancies = seatOccupancyRepository.findByStartTimeBetween(startOfCurrentHour, endOfCurrentHour);
+
+        // 날짜 형식 정의
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+        // SeatOccupancy 목록을 OccupancyListResponse 목록으로 변환
+        return seatOccupancies.stream()
+            .map(occupancy -> {
+                // 좌석 이름
+                String seatName = occupancy.getSeat().getName();
+                String formattedStartTime = occupancy.getStartTime().format(formatter);
+
+                return new OccupancyListResponse(
+                    occupancy.getUser().getId(),
+                    occupancy.getSeat().getId(),
+                    seatName,
+                    formattedStartTime
                 );
             })
             .collect(Collectors.toList());
@@ -115,4 +146,5 @@ public class SeatOccupancyService {
 
         seatOccupancyRepository.deleteById(id);
     }
+
 }

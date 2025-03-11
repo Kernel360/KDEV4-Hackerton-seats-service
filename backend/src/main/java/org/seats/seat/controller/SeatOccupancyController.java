@@ -32,7 +32,13 @@ public class SeatOccupancyController {
         return ResponseEntity.ok(list);
     }
 
-    // 현재 예약 상황 리스트
+    // 실시간 예약 현황 보기
+    @GetMapping("/now")
+    public ResponseEntity<List<OccupancyListResponse>> getNowOccupancyList() {
+        List<OccupancyListResponse> list = seatOccupancyService.getNowOccupanyList();
+        return ResponseEntity.ok(list);
+    }
+
 
     // 예약 하기
     @PostMapping("")

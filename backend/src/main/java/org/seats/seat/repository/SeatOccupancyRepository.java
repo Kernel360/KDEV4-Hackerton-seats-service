@@ -1,6 +1,7 @@
 package org.seats.seat.repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import org.seats.seat.entity.Seat;
 import org.seats.seat.entity.SeatOccupancy;
 import org.seats.user.entity.User;
@@ -17,5 +18,8 @@ public interface SeatOccupancyRepository extends JpaRepository<SeatOccupancy, Lo
 
     // 특정 좌석에 대해 동일한 startTime 으로 예약된 건수를 확인
     long countBySeatAndStartTime(Seat seat, LocalDateTime startTime);
+
+    // 특정 시간 범위에 예약된 좌석들을 조회
+    List<SeatOccupancy> findByStartTimeBetween(LocalDateTime startOfPeriod, LocalDateTime endOfPeriod);
 
 }
