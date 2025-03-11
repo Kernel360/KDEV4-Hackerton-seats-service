@@ -1,5 +1,6 @@
 package org.seats.user.service;
 
+import lombok.RequiredArgsConstructor;
 import org.seats.user.entity.User;
 import org.seats.user.entity.UserRepository;
 import org.seats.user.model.UserRequest;
