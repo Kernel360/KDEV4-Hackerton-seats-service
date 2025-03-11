@@ -1,12 +1,21 @@
+import { postSignUp } from '@/api/api'
+import SignForm from '@/components/form/sign-form'
+import { Stack } from '@mui/material'
+import { useNavigate } from 'react-router-dom'
+
 export default function SignUp() {
+  const navigate = useNavigate()
+
   return (
-    <>
-      <h1>회원가입</h1>
-      <form>
-        <input />
-        <input />
-        <button>회원가입</button>
-      </form>
-    </>
+    <Stack
+      p={3}
+      gap={2}
+      direction="row"
+      justifyContent="center">
+      <SignForm
+        type="signup"
+        api={postSignUp}
+      />
+    </Stack>
   )
 }

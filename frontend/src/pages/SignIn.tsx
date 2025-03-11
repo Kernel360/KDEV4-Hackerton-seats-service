@@ -1,12 +1,17 @@
+import SignForm from '@/components/form/sign-form'
+import { Stack } from '@mui/material'
+import { postSignIn } from '@/api/api'
 export default function SignIn() {
   return (
-    <>
-      <h1>로그인</h1>
-      <form>
-        <input />
-        <input />
-        <button>로그인</button>
-      </form>
-    </>
+    <Stack
+      p={3}
+      gap={2}
+      direction="row"
+      justifyContent="center">
+      <SignForm
+        type="signin"
+        api={postSignIn}
+      />
+    </Stack>
   )
 }
