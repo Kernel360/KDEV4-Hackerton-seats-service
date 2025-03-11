@@ -16,6 +16,8 @@ import org.seats.seat.entity.Seat;
 import org.seats.seat.entity.SeatOccupancy;
 import org.seats.seat.repository.SeatOccupancyRepository;
 import org.seats.seat.repository.SeatRepository;
+import org.seats.user.entity.User;
+import org.seats.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -25,6 +27,7 @@ public class SeatOccupancyService {
 
     private final SeatOccupancyRepository seatOccupancyRepository;
     private final SeatRepository seatRepository;
+    private final UserRepository userRepository;
     private final SeatOccupancyConverter seatOccupancyConverter;
 
     // 예약 리스트 전체 조회
@@ -57,6 +60,11 @@ public class SeatOccupancyService {
         LocalDateTime startDateTime = LocalDateTime.parse(request.getStartTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
         LocalDate requestedDate = startDateTime.toLocalDate();  // 요청된 날짜
 
+        // user 확인
+        Long userId = request.getUserId();
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("해당 유저를 찾을 수 없습니다."));
+
         // 좌석 정보 조회
         Seat seat = seatRepository.findById(request.getSeatId())
             .orElseThrow(() -> new RuntimeException("Seat Not Found"));
@@ -65,8 +73,11 @@ public class SeatOccupancyService {
         LocalDateTime startOfDay = requestedDate.atStartOfDay();  // 하루의 시작
         LocalDateTime endOfDay = requestedDate.plusDays(1).atStartOfDay();  // 하루의 끝 (다음날 00:00)
 
-        // 같은 날짜와 좌석에 대해 예약이 2번을 초과했는지 확인
-        checkBookingLimit(seat, startOfDay, endOfDay, requestedDate);
+        // 로그인한 사용자가 하루에 예약 2번 하는지 확인
+        checkUserBookingLimit(user, startOfDay, endOfDay);
+
+        // 같은 시간에 이미 다른 예약이 존재하는지 확인
+        checkTimeSlotAvailability(seat, startDateTime);
 
         SeatOccupancy occupancy = seatOccupancyConverter.toEntity(request);
         SeatOccupancy newOccupancy = seatOccupancyRepository.save(occupancy);
@@ -75,14 +86,25 @@ public class SeatOccupancyService {
         return seatOccupancyConverter.toResponse(newOccupancy);
     }
 
-    // 예약이 하루에 2번 초과하는지 확인하는 메서드
-    private void checkBookingLimit(Seat seat, LocalDateTime startOfDay, LocalDateTime endOfDay, LocalDate requestedDate) {
-        long bookingCount = seatOccupancyRepository.countBySeatAndStartTimeBetween(seat, startOfDay, endOfDay);
+    // 예약이 하루에 2번 초과하는지 확인하는 메서드 (조건 1)
+    private void checkUserBookingLimit(User user, LocalDateTime startOfDay, LocalDateTime endOfDay) {
+        long userBookingCount = seatOccupancyRepository.countByUserAndStartTimeBetween(user, startOfDay, endOfDay);
 
-        // 이미 하루에 2번 예약이 되어 있는지 체크
-        if (bookingCount >= 2) {
-            log.error("Attempt to book or update seat {} on {} when it is already booked twice.", seat.getId(), requestedDate);
+        // 사용자가 하루에 2번 예약을 시도하는지 체크
+        if (userBookingCount >= 2) {
+            log.error("User {} has already booked twice on this day.", user.getId());
             throw new IllegalStateException("하루에 2번 예약 가능합니다.");
+        }
+    }
+
+    // 동일한 시간에 다른 사용자가 이미 예약한 경우를 체크하는 메서드 (조건 2)
+    private void checkTimeSlotAvailability(Seat seat, LocalDateTime startDateTime) {
+        long conflictingBookings = seatOccupancyRepository.countBySeatAndStartTime(seat, startDateTime);
+
+        // 동일한 시간에 두 명 이상 예약할 수 없도록 체크
+        if (conflictingBookings > 0) {
+            log.error("The seat {} is already booked at {}.", seat.getId(), startDateTime);
+            throw new IllegalStateException("다른 사용자들이 이미 같은 시간에 예약을 했습니다.");
         }
     }
 
