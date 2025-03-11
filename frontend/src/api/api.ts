@@ -1,6 +1,7 @@
 import { OccupancyResponse } from '@/api/types/occupancy'
 import { SignInResponse, SignUpResponse } from './types/user'
 import axios from 'axios'
+import { SeatResponse } from './types/seat'
 
 const API_BASE_URL = 'http://localhost:8080'
 
@@ -69,4 +70,34 @@ export const postSignIn = async (
     }
     throw new Error('서버와의 통신에 실패했습니다.')
   }
+}
+
+export const getSeats = async (): Promise<SeatResponse> => {
+  const data: SeatResponse = {
+    seats: [
+      {
+        id: '1',
+        name: '좌석 A',
+        isUsed: false
+      },
+      {
+        id: '2',
+        name: '좌석 B',
+        isUsed: true
+      },
+      {
+        id: '3',
+        name: '좌석 C',
+        isUsed: false
+      },
+      {
+        id: '4',
+        name: '좌석 D',
+        isUsed: true
+      }
+    ]
+  }
+
+  await new Promise(resolve => setTimeout(resolve, 500))
+  return data
 }

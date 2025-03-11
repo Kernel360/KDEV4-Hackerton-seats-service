@@ -22,10 +22,17 @@ export default function Header() {
             <>
               <Button
                 color="inherit"
+                onClick={() => navigate('/occupancy')}
+                size="large">
+                예약하기
+              </Button>
+              <Button
+                color="inherit"
                 onClick={() => {
                   logout()
                   navigate('/')
-                }}>
+                }}
+                size="large">
                 로그아웃
               </Button>
             </>
@@ -33,12 +40,14 @@ export default function Header() {
             <>
               <Button
                 color="inherit"
-                onClick={() => navigate('/signin')}>
+                onClick={() => navigate('/signin')}
+                size="large">
                 로그인
               </Button>
               <Button
                 color="inherit"
-                onClick={() => navigate('/signup')}>
+                onClick={() => navigate('/signup')}
+                size="large">
                 회원가입
               </Button>
             </>
