@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,16 +43,16 @@ public class SeatOccupancyController {
     // 유저의 예약 리스트 조회
     @JwtAuth
     @GetMapping("/my")
-    public ResponseEntity<List<MyOccupancyListResponse>> getMyOccupancyList(HttpServletRequest httpServletRequest) {
-        List<MyOccupancyListResponse> list = seatOccupancyService.getMyOccupancyList(httpServletRequest);
+    public ResponseEntity<List<MyOccupancyListResponse>> getMyOccupancyList(@RequestAttribute("userId") Long userId) {
+        List<MyOccupancyListResponse> list = seatOccupancyService.getMyOccupancyList(userId);
         return ResponseEntity.ok(list);
     }
 
     // 예약 하기
     @JwtAuth
     @PostMapping("")
-    public ResponseEntity<OccupancyResponse> createOccupancy(@RequestBody OccupancyRequest request, HttpServletRequest httpServletRequest) {
-        OccupancyResponse response = seatOccupancyService.createOccupancy(request, httpServletRequest);
+    public ResponseEntity<OccupancyResponse> createOccupancy(@RequestBody OccupancyRequest request, @RequestAttribute("userId") Long userId) {
+        OccupancyResponse response = seatOccupancyService.createOccupancy(request, userId);
         return ResponseEntity.ok(response);
     }
 

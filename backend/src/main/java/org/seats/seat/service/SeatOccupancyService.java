@@ -90,10 +90,7 @@ public class SeatOccupancyService {
 	}
 
 	// 유저의 예약 리스트 조회
-	public List<MyOccupancyListResponse> getMyOccupancyList(HttpServletRequest httpServletRequest) {
-		// userId 추출
-		Long userId = (Long) httpServletRequest.getAttribute("userId");
-
+	public List<MyOccupancyListResponse> getMyOccupancyList(Long userId) {
 		// 예외 처리
 		if (userId == null) {
 			throw new IllegalStateException("User ID is missing. Please ensure the JWT token is provided.");
@@ -107,14 +104,11 @@ public class SeatOccupancyService {
 	}
 
 	// 예약 하기
-	public OccupancyResponse createOccupancy(OccupancyRequest request, HttpServletRequest httpRequest) {
+	public OccupancyResponse createOccupancy(OccupancyRequest request, Long userId) {
 		// 요청된 시간대 시작 시간 파싱
 		LocalDateTime startDateTime = LocalDateTime.parse(request.getStartTime(),
 			DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
 		LocalDate requestedDate = startDateTime.toLocalDate();  // 요청된 날짜
-
-		// userId 추출
-		Long userId = (Long) httpRequest.getAttribute("userId");
 
 		// 예외 처리
 		if (userId == null) {
