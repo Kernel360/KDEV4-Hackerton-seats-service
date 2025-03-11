@@ -57,7 +57,4 @@ public class SeatOccupancy {
 	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
 
-	@SoftDelete
-	@Column(name = "is_deleted")
-	private Boolean isDeleted;
 }
