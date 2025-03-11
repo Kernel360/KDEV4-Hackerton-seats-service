@@ -46,4 +46,10 @@ public class UserController {
     ) {
         return userService.delete(userRequest);
     }
+
+    @GetMapping("/occupancy/{userId}")
+    public ResponseEntity<List<MyOccupancyListResponse>> getMyOccupancyList(@PathVariable Long userId) {
+        List<MyOccupancyListResponse> list = userService.getMyOccupancyList(userId);
+        return ResponseEntity.ok(list);
+    }
 }
