@@ -1,5 +1,6 @@
 package org.seats.seat.service;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -88,14 +89,21 @@ public class SeatOccupancyService {
 	}
 
 	// 예약 하기
-	public OccupancyResponse createOccupancy(OccupancyRequest request) {
+	public OccupancyResponse createOccupancy(OccupancyRequest request, HttpServletRequest httpRequest) {
 		// 요청된 시간대 시작 시간 파싱
 		LocalDateTime startDateTime = LocalDateTime.parse(request.getStartTime(),
 			DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
 		LocalDate requestedDate = startDateTime.toLocalDate();  // 요청된 날짜
 
-		// user 확인
-		Long userId = request.getUserId();
+		// userId 추출
+		Long userId = (Long) httpRequest.getAttribute("userId");
+
+		// 예외 처리
+		if (userId == null) {
+			throw new IllegalStateException("User ID is missing. Please ensure the JWT token is provided.");
+		}
+
+		// 유저 확인
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new RuntimeException("해당 유저를 찾을 수 없습니다."));
 
@@ -113,7 +121,8 @@ public class SeatOccupancyService {
 		// 같은 시간에 이미 다른 예약이 존재하는지 확인
 		checkTimeSlotAvailability(seat, startDateTime);
 
-		SeatOccupancy occupancy = seatOccupancyConverter.toEntity(request);
+		// 좌석 예약 생성
+		SeatOccupancy occupancy = seatOccupancyConverter.toEntity(request, userId);
 		SeatOccupancy newOccupancy = seatOccupancyRepository.save(occupancy);
 
 		// 예약 성공 시, 응답 객체로 변환하여 반환

@@ -1,19 +1,18 @@
 package org.seats.seat.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
+import org.seats.global.intercetpor.JwtAuth;
 import org.seats.seat.domain.OccupancyListResponse;
 import org.seats.seat.domain.OccupancyRequest;
 import org.seats.seat.domain.OccupancyResponse;
-import org.seats.seat.repository.SeatOccupancyRepository;
 import org.seats.seat.service.SeatOccupancyService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,16 +40,19 @@ public class SeatOccupancyController {
 
 
     // 예약 하기
+    @JwtAuth
     @PostMapping("")
-    public ResponseEntity<OccupancyResponse> createOccupancy(@RequestBody OccupancyRequest request) {
-        OccupancyResponse response = seatOccupancyService.createOccupancy(request);
+    public ResponseEntity<OccupancyResponse> createOccupancy(@RequestBody OccupancyRequest request, HttpServletRequest httpServletRequest) {
+        OccupancyResponse response = seatOccupancyService.createOccupancy(request, httpServletRequest);
         return ResponseEntity.ok(response);
     }
 
     // 예악 취소
+    @JwtAuth
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public ResponseEntity<?> delete(@PathVariable Long id) {
         seatOccupancyService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
 }
