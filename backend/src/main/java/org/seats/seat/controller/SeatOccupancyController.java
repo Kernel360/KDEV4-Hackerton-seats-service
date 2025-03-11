@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.seats.global.intercetpor.JwtAuth;
+import org.seats.seat.domain.MyOccupancyListResponse;
 import org.seats.seat.domain.OccupancyListResponse;
 import org.seats.seat.domain.OccupancyRequest;
 import org.seats.seat.domain.OccupancyResponse;
@@ -38,6 +39,13 @@ public class SeatOccupancyController {
         return ResponseEntity.ok(list);
     }
 
+    // 유저의 예약 리스트 조회
+    @JwtAuth
+    @GetMapping("/my")
+    public ResponseEntity<List<MyOccupancyListResponse>> getMyOccupancyList(HttpServletRequest httpServletRequest) {
+        List<MyOccupancyListResponse> list = seatOccupancyService.getMyOccupancyList(httpServletRequest);
+        return ResponseEntity.ok(list);
+    }
 
     // 예약 하기
     @JwtAuth

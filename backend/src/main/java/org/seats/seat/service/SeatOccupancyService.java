@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.seats.seat.converter.SeatOccupancyConverter;
+import org.seats.seat.domain.MyOccupancyListResponse;
 import org.seats.seat.domain.OccupancyListResponse;
 import org.seats.seat.domain.OccupancyRequest;
 import org.seats.seat.domain.OccupancyResponse;
@@ -85,6 +86,23 @@ public class SeatOccupancyService {
 					formattedStartTime
 				);
 			})
+			.collect(Collectors.toList());
+	}
+
+	// 유저의 예약 리스트 조회
+	public List<MyOccupancyListResponse> getMyOccupancyList(HttpServletRequest httpServletRequest) {
+		// userId 추출
+		Long userId = (Long) httpServletRequest.getAttribute("userId");
+
+		// 예외 처리
+		if (userId == null) {
+			throw new IllegalStateException("User ID is missing. Please ensure the JWT token is provided.");
+		}
+
+		List<SeatOccupancy> list = seatOccupancyRepository.findByUserId(userId);
+
+		return list.stream()
+			.map(seatOccupancyConverter::toMyOccupancyListResponse)
 			.collect(Collectors.toList());
 	}
 
