@@ -45,13 +45,18 @@ export const postSignIn = async (
   password: string
 ): Promise<SignInResponse> => {
   try {
-    const response = await axios.post<SignInResponse>(
-      `${API_BASE_URL}/auth/signin`,
-      {
-        id,
-        password
+    // const response = await axios.post<SignInResponse>(
+    //   `${API_BASE_URL}/auth/signin`,
+    //   {
+    //     id,
+    //     password
+    //   }
+    // )
+    const response = {
+      data: {
+        accessToken: '1234567890'
       }
-    )
+    }
 
     // 토큰을 로컬 스토리지에 저장
     localStorage.setItem('accessToken', response.data.accessToken)
