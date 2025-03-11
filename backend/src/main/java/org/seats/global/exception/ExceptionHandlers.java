@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ExceptionHandlers {
 
 	@ExceptionHandler(Exception.class)
-	public ResponseEntity<?> handleDustRabbitException(Exception e) {
+	public ResponseEntity<?> handleSeatsException(Exception e) {
 		return errorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
 	}
 

@@ -14,9 +14,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Service
 public class JwtService {
 
@@ -47,7 +45,6 @@ public class JwtService {
 
 		var jwtToken = this.create(claims, expireAt);
 
-		System.out.println(jwtToken);
 		return jwtToken;
 	}
 
