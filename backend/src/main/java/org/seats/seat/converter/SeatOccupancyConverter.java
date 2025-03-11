@@ -1,8 +1,10 @@
 package org.seats.seat.converter;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import lombok.extern.slf4j.Slf4j;
 import org.seats.seat.domain.MyOccupancyListResponse;
 import org.seats.seat.domain.OccupancyRequest;
 import org.seats.seat.domain.OccupancyResponse;
@@ -16,17 +18,21 @@ import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
+@Slf4j
 @Component
 public class SeatOccupancyConverter {
+
 	private final UserRepository userRepository;
 	private final SeatRepository seatRepository;
 
-	public SeatOccupancy toEntity(OccupancyRequest request) {
+	public SeatOccupancy toEntity(OccupancyRequest request, Long userId) {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-		User user = userRepository.findById(request.getUserId())
+		// userId를 통해 User 객체를 조회
+		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new RuntimeException("User Not Found"));
 
+		// 좌석 정보 조회
 		Seat seat = seatRepository.findById(request.getSeatId())
 			.orElseThrow(() -> new RuntimeException("Seat Not Found"));
 
@@ -37,6 +43,7 @@ public class SeatOccupancyConverter {
 			.build();
 	}
 
+	// 예약 응답 객체 변환
 	public OccupancyResponse toResponse(SeatOccupancy seatOccupancy) {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
@@ -47,6 +54,7 @@ public class SeatOccupancyConverter {
 			.build();
 	}
 
+	// 예약 목록 응답 객체 변환
 	public MyOccupancyListResponse toMyOccupancyListResponse(SeatOccupancy seatOccupancy) {
 		return MyOccupancyListResponse.builder()
 			.seatId(seatOccupancy.getSeat().getId())
