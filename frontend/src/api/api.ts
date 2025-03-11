@@ -1,103 +1,64 @@
-import { OccupancyResponse } from '@/api/types/occupancy'
-import { SignInResponse, SignUpResponse } from './types/user'
 import axios from 'axios'
-import { SeatResponse } from './types/seat'
 
-const API_BASE_URL = 'http://localhost:8080'
+const API_URL = import.meta.env.VITE_REST_SERVER
 
-export interface ErrorResponse {
-  message: string
+const api = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  withCredentials: true
+})
+
+// 로그인
+export const postSignIn = async (name: string, password: string) => {
+  const response = await api.post('/user/signin', { name, password })
+  const { accessToken } = response.data
+  localStorage.setItem('accessToken', accessToken) // 로그인 후 JWT 토큰을 로컬스토리지에 저장
 }
 
-export const getOccupancyList = async (): Promise<OccupancyResponse> => {
-  const data: OccupancyResponse = {
-    occupancyList: [
-      {
-        seatId: 1,
-        seatName: '테이블 A',
-        startTime: '2024-03-20 10:00',
-        endTime: '2024-03-20 12:00'
-      },
-      {
-        seatId: 2,
-        seatName: '테이블 B',
-        startTime: '2024-03-20 14:00',
-        endTime: '2024-03-20 16:00'
-      }
-    ]
-  }
-  // 실제 API 호출을 시뮬레이션하기 위한 지연
-  await new Promise(resolve => setTimeout(resolve, 500))
-  return data
+// 회원가입
+export const postSignUp = async (name: string, password: string) => {
+  const response = await api.post('/user/signup', { name, password })
+  const { accessToken } = response.data
+  localStorage.setItem('accessToken', accessToken) // 회원가입 후 JWT 토큰을 로컬스토리지에 저장
 }
 
-export const postSignUp = async (
-  id: string,
-  password: string
-): Promise<SignUpResponse> => {
-  const data: SignUpResponse = {
-    accessToken: '1234567890'
-  }
-  return data
+// JWT 토큰을 로컬스토리지에서 가져오는 함수
+const getAuthToken = () => {
+  return localStorage.getItem('accessToken') // 로컬스토리지에 JWT 토큰을 저장한다고 가정
 }
 
-export const postSignIn = async (
-  id: string,
-  password: string
-): Promise<SignInResponse> => {
-  try {
-    // const response = await axios.post<SignInResponse>(
-    //   `${API_BASE_URL}/auth/signin`,
-    //   {
-    //     id,
-    //     password
-    //   }
-    // )
-    const response = {
-      data: {
-        accessToken: '1234567890'
-      }
+// 로그인 여부 확인
+export const isLogin = (): boolean => {
+  const accessToken = localStorage.getItem('accessToken')
+  return accessToken !== null && accessToken !== ''
+}
+
+// 로그아웃
+export const logout = () => {
+  localStorage.removeItem('accessToken')
+}
+
+// 요청을 보낼 때마다 토큰을 Authorization 헤더에 포함시킴
+api.interceptors.request.use(
+  config => {
+    const accessToken = getAuthToken()
+    if (accessToken) {
+      config.headers['Authorization'] = `Bearer ${accessToken}`
     }
+    return config
+  },
+  error => {
+    return Promise.reject(error)
+  }
+)
 
-    // 토큰을 로컬 스토리지에 저장
-    localStorage.setItem('accessToken', response.data.accessToken)
-
-    return response.data
-  } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
-      const errorData = error.response.data as ErrorResponse
-      throw new Error(errorData.message || '로그인에 실패했습니다.')
-    }
-    throw new Error('서버와의 통신에 실패했습니다.')
+// 로그인 확인을 위한 함수
+export const checkLogin = () => {
+  if (!isLogin()) {
+    throw new Error('로그인 필요')
   }
 }
 
-export const getSeats = async (): Promise<SeatResponse> => {
-  const data: SeatResponse = {
-    seats: [
-      {
-        id: '1',
-        name: '좌석 A',
-        isUsed: false
-      },
-      {
-        id: '2',
-        name: '좌석 B',
-        isUsed: true
-      },
-      {
-        id: '3',
-        name: '좌석 C',
-        isUsed: false
-      },
-      {
-        id: '4',
-        name: '좌석 D',
-        isUsed: true
-      }
-    ]
-  }
-
-  await new Promise(resolve => setTimeout(resolve, 500))
-  return data
-}
+export default api

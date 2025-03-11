@@ -1,4 +1,4 @@
-import SignForm from '@/components/form/sign-form'
+import SignForm from '@/components/form/SignForm'
 import { Stack } from '@mui/material'
 import { postSignIn } from '@/api/api'
 export default function SignIn() {

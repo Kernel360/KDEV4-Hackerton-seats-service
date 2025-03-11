@@ -29,13 +29,13 @@ const getSignFormText = (type: SignFormType) => SIGN_FORM_TEXT[type]
 
 export default function SignForm({ type, api }: SignFormProps) {
   const navigate = useNavigate()
-  const [id, setId] = useState('')
+  const [name, setName] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async () => {
-    if (!id || !password) {
+    if (!name || !password) {
       setError('아이디와 비밀번호를 입력해주세요.')
       return
     }
@@ -44,8 +44,9 @@ export default function SignForm({ type, api }: SignFormProps) {
       setLoading(true)
       setError(null)
 
-      await api(id, password)
+      await api(name, password)
       navigate('/')
+      window.location.reload()
     } catch (err) {
       setError(err instanceof Error ? err.message : '오류가 발생했습니다.')
     } finally {
@@ -54,7 +55,7 @@ export default function SignForm({ type, api }: SignFormProps) {
   }
 
   const handleIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setId(e.target.value)
+    setName(e.target.value)
   }
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,7 +80,7 @@ export default function SignForm({ type, api }: SignFormProps) {
         }}>
         <TextField
           label="아이디"
-          value={id}
+          value={name}
           onChange={handleIdChange}
           disabled={loading}
         />

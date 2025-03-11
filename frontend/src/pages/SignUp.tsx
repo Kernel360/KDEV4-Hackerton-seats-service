@@ -1,5 +1,5 @@
 import { postSignUp } from '@/api/api'
-import SignForm from '@/components/form/sign-form'
+import SignForm from '@/components/form/SignForm'
 import { Stack } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 
