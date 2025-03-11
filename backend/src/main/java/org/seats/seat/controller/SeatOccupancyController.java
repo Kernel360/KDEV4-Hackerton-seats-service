@@ -19,14 +19,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/seats/occupancy")
+@RequestMapping("/seats/occupancy")
 @RequiredArgsConstructor
 public class SeatOccupancyController {
 
     private final SeatOccupancyService seatOccupancyService;
 
     // 전체 예악 현황 보기
-    
+    @GetMapping("")
+    public ResponseEntity<List<OccupancyListResponse>> getAllOccupancy() {
+        List<OccupancyListResponse> list = seatOccupancyService.getAllList();
+        return ResponseEntity.ok(list);
+    }
+
     // 현재 예약 상황 리스트
 
     // 예약 하기

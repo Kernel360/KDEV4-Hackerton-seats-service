@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.seats.seat.converter.SeatOccupancyConverter;
@@ -28,7 +29,26 @@ public class SeatOccupancyService {
 
     // 예약 리스트 전체 조회
     public List<OccupancyListResponse> getAllList() {
-        return null;
+        // 모든 예약 정보를 조회
+        List<SeatOccupancy> seatOccupancies = seatOccupancyRepository.findAll();
+
+        // SeatOccupancy 목록을 OccupancyListResponse 목록으로 변환
+        return seatOccupancies.stream()
+            .map(occupancy -> {
+                String seatName = occupancy.getSeat().getName();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+                String formattedStartTime = occupancy.getStartTime().format(formatter);
+
+                // 필요한 정보를 가지고 OccupancyListResponse 생성
+                return new OccupancyListResponse(
+                    occupancy.getUser().getId(),          // userId
+                    occupancy.getSeat().getId(),          // seatId
+                    seatName,                             // seatName
+                    formattedStartTime                    // startTime as string
+                );
+            })
+            .collect(Collectors.toList());
     }
 
     // 예약 하기

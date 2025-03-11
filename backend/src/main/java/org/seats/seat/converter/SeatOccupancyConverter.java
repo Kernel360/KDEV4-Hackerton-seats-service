@@ -1,6 +1,5 @@
 package org.seats.seat.converter;
 
-import jakarta.persistence.Converter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import lombok.RequiredArgsConstructor;
@@ -44,5 +43,4 @@ public class SeatOccupancyConverter {
             .startTime(seatOccupancy.getStartTime().format(formatter))
             .build();
     }
-
 }
