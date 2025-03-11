@@ -1,10 +1,30 @@
-import { isLogin, logout } from '@/auth/auth'
-import { AppBar, Button, Stack, Toolbar, Typography } from '@mui/material'
-import Box from '@mui/material/Box'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { logout, isLogin } from '@/auth/auth' // 기존 auth에서 가져오기
+import { AppBar, Button, Toolbar, Typography } from '@mui/material'
+import Box from '@mui/material/Box'
 
-export default function Header() {
+const Header = () => {
   const navigate = useNavigate()
+
+  // 로그인 상태를 관리하는 상태 변수
+  const [loggedIn, setLoggedIn] = useState<boolean>(isLogin())
+
+  // 로그인 상태가 변경될 때마다 UI를 업데이트합니다.
+  useEffect(() => {
+    // localStorage의 변화 감지
+    const handleStorageChange = () => {
+      setLoggedIn(isLogin()) // 로그인 상태가 변경되면 UI를 업데이트
+    }
+
+    // 로컬스토리지 변경을 감지하는 이벤트 리스너 등록
+    window.addEventListener('storage', handleStorageChange)
+
+    // 컴포넌트 언마운트 시 이벤트 리스너 제거
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+    }
+  }, [])
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -18,7 +38,7 @@ export default function Header() {
             <Typography variant="h6">KERNEL360 회의실 예약</Typography>
           </Button>
 
-          {isLogin() ? (
+          {loggedIn ? (
             <>
               <Button
                 color="inherit"
@@ -29,8 +49,9 @@ export default function Header() {
               <Button
                 color="inherit"
                 onClick={() => {
-                  logout()
-                  navigate('/')
+                  logout() // 로그아웃
+                  setLoggedIn(false) // 로그아웃 후 상태 변경
+                  navigate('/') // 홈으로 이동
                 }}
                 size="large">
                 로그아웃
@@ -57,3 +78,5 @@ export default function Header() {
     </Box>
   )
 }
+
+export default Header

@@ -9,7 +9,7 @@ import {
 import { TableCell } from '@mui/material'
 import { OccupancyCardProps } from './OccupancyCard'
 import { useEffect, useState } from 'react'
-import { getOccupancyList } from '@/api/api'
+//import { getOccupancyList } from '@/api/api'
 import { Occupancy } from '@/api/types/occupancy'
 
 type OccupancyTableProps = {
@@ -43,8 +43,8 @@ export default function OccupancyTable({
   useEffect(() => {
     const fetchOccupancyList = async () => {
       try {
-        const response = await getOccupancyList()
-        setOccupancyList(response.occupancyList)
+        //const response = await getOccupancyList()
+        //setOccupancyList(response.occupancyList)
       } catch (error) {
         console.error('Failed to fetch occupancy list:', error)
       }
