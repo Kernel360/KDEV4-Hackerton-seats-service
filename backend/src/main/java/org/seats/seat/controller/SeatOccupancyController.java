@@ -69,7 +69,7 @@ public class SeatOccupancyController {
 
 	// 예악 취소
 	@JwtAuth
-	@DeleteMapping("/")
+	@DeleteMapping("")
 	public ResponseEntity<?> delete(@RequestBody DeleteRequest request, @RequestAttribute("userId") Long userId) {
 		seatOccupancyService.delete(request.getSeatId(), LocalDate.parse(request.getStartTime()), userId);
 		return ResponseEntity.noContent().build();
