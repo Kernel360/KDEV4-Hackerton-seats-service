@@ -225,9 +225,9 @@ public class SeatOccupancyService {
 	}
 
 	// 삭제하기
-	public void delete(Long seatId, LocalDate startTime, Long userId) {
+	public void delete(Long seatId, LocalDateTime startTime, Long userId) {
 		SeatOccupancy seatOccupancy = seatOccupancyRepository.findBySeatIdAndUserIdAndStartTime(
-			seatId, userId, startTime.atStartOfDay());
+			seatId, userId, startTime);
 		if (seatOccupancy == null) {
 			throw new IllegalStateException("예약을 찾을 수 없습니다.");
 		}
