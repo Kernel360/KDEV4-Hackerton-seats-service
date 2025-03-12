@@ -5,13 +5,13 @@ import api from '@/api/api'
 import dayjs from 'dayjs'
 
 export type OccupancyCardProps = {
-  id: number
+  seatId: number
   seatName: string
   startTime: string
   formattedStartTime: any
   formattedDate?: string
   formattedTimeRange?: string
-  onDelete: (id: number) => void
+  onDelete: (seatId: number, startTime: string) => void
 }
 
 export default function MyOccupancy() {
@@ -22,10 +22,16 @@ export default function MyOccupancy() {
     setOccupancyCards(response.data)
   }
 
-  const onDelete = async (seatId: number) => {
+  const onDelete = async (seatId: number, startTime: string) => {
     try {
-      await api.delete(`/seats/occupancy/${seatId}`)
-      setOccupancyCards(prev => prev.filter(card => card.id !== seatId))
+      await api.delete(`/seats/occupancy`, {
+        data: {
+          seatId,
+          startTime
+        }
+      })
+
+      setOccupancyCards(prev => prev.filter(card => card.seatId !== seatId))
     } catch (error) {
       console.error('삭제 실패:', error)
     }
@@ -54,10 +60,10 @@ export default function MyOccupancy() {
 
           return (
             <div
-              key={card.id}
+              key={card.seatId}
               style={{ width: '45%', margin: '10px' }}>
               <OccupancyCard
-                id={card.id}
+                seatId={card.seatId}
                 seatName={card.seatName}
                 startTime={card.startTime}
                 formattedStartTime={

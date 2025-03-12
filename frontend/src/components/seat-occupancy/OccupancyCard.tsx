@@ -1,14 +1,16 @@
 import { Button } from '@mui/material'
 import { Card, CardContent, Stack, Typography } from '@mui/material'
 import { OccupancyCardProps } from './MyOccupancy'
+
 export default function OccupancyCard({
-  id,
+  seatId,
+  startTime,
   seatName,
   formattedStartTime,
   onDelete
 }: OccupancyCardProps) {
   const handleDelete = () => {
-    onDelete(id)
+    onDelete(seatId, startTime)
   }
 
   return (
