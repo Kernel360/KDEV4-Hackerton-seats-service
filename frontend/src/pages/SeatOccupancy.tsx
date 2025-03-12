@@ -7,7 +7,7 @@ export default function SeatOccupancy() {
   const [isReservationSuccess, setIsReservationSuccess] = useState(false)
 
   const handleReservationSuccess = () => {
-    setIsReservationSuccess(true)
+    setIsReservationSuccess(!isReservationSuccess)
   }
 
   const dateFilter = () => {
@@ -32,7 +32,7 @@ export default function SeatOccupancy() {
         {dateFilter()}
         <OccupancyTable
           onReservationSuccess={handleReservationSuccess}
-          setIsReservationSuccess={setIsReservationSuccess}
+          reservationSuccess={isReservationSuccess}
         />
       </Stack>
       <Stack

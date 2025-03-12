@@ -23,17 +23,20 @@ export default function MyOccupancy({
 }) {
   const [occupancyCards, setOccupancyCards] = useState<OccupancyCardProps[]>([])
 
-  useEffect(() => {
-    if (isReservationSuccess) {
-      getUserOccupancy()
-      setIsReservationSuccess(false)
-    }
-  }, [isReservationSuccess])
-
   const getUserOccupancy = async () => {
     const response = await api.get(`/seats/occupancy/my`)
     setOccupancyCards(response.data)
   }
+
+  // 초기 로딩 시 한 번만 실행
+  useEffect(() => {
+    getUserOccupancy()
+  }, [])
+
+  // isReservationSuccess가 변경될 때만 실행
+  useEffect(() => {
+    getUserOccupancy()
+  }, [isReservationSuccess])
 
   const onDelete = async (seatId: number, startTime: string) => {
     try {
@@ -45,14 +48,11 @@ export default function MyOccupancy({
       })
 
       setOccupancyCards(prev => prev.filter(card => card.seatId !== seatId))
+      setIsReservationSuccess(!isReservationSuccess)
     } catch (error) {
       console.error('삭제 실패:', error)
     }
   }
-
-  useEffect(() => {
-    getUserOccupancy()
-  }, [])
 
   return (
     <Stack

@@ -43,10 +43,12 @@ type TableData = {
 }
 
 type OccupancyTableProps = {
+  reservationSuccess: boolean
   onReservationSuccess: () => void
 }
 
 export default function OccupancyTable({
+  reservationSuccess,
   onReservationSuccess
 }: OccupancyTableProps) {
   const [tableHeaderData, setTableHeaderData] = useState<TableHeader>()
@@ -66,7 +68,11 @@ export default function OccupancyTable({
 
   useEffect(() => {
     fetchOccupancyList()
-  }, [tableData])
+  }, [])
+
+  useEffect(() => {
+    fetchOccupancyList()
+  }, [reservationSuccess])
 
   const handleReserve = async (
     seatId: number,
