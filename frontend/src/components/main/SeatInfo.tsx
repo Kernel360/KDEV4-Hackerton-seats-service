@@ -1,5 +1,5 @@
 import { Stack, Typography } from '@mui/material'
-import { Rectangle } from './rectangle'
+import { Rectangle } from './Rectangle'
 
 type SeatInfoProps = {
   seatName: string

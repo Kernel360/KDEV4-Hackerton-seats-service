@@ -1,33 +1,23 @@
 import { Button } from '@mui/material'
-
 import { Card, CardContent, Stack, Typography } from '@mui/material'
-
-export type OccupancyCardProps = {
-  id: number
-  name: string
-  startTime: string
-  endTime: string
-  onDelete: (id: number) => void
-}
+import { OccupancyCardProps } from './MyOccupancy'
 
 export default function OccupancyCard({
-  id,
-  name,
+  seatId,
   startTime,
-  endTime,
+  seatName,
+  formattedStartTime,
   onDelete
 }: OccupancyCardProps) {
   const handleDelete = () => {
-    onDelete(id)
+    onDelete(seatId, startTime)
   }
 
   return (
-    <Card sx={{ width: '50%' }}>
+    <Card sx={{ width: '100%' }}>
       <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-        <Typography variant="h6">{name}</Typography>
-        <Typography variant="body2">
-          예약 시간: {startTime} ~ {endTime}
-        </Typography>
+        <Typography variant="h6">{seatName}</Typography>
+        <Typography variant="body2">{formattedStartTime}</Typography>
         <Stack
           direction="row"
           spacing={2}>

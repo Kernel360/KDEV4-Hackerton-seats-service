@@ -1,5 +1,5 @@
-import { Rectangle } from '@/components/main/rectangle'
-import { SeatInfo } from '@/components/main/seat-info'
+import { Rectangle } from '@/components/main/Rectangle'
+import { SeatInfo } from '@/components/main/SeatInfo'
 import { useState } from 'react'
 import { Seat } from '@/api/types/seat'
 import NowOccupanyList from '@/components/main/NowOccupancyList'
