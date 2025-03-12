@@ -63,13 +63,17 @@ public class SeatOccupancyService {
 			String startTime = String.format("%02d:00", hour);
 			String endTime = String.format("%02d:00", hour + 1);
 
+			// 만약 현재 시간이 14시인 경우 14시 이전 시간은 예약할 수 없다
+			int currentHour = LocalDateTime.now().getHour();
+			boolean isOccupancy = hour < currentHour;
+
 			TableData tableData = new TableData(
 				startTime,
 				endTime,
-				new SeatStatus(seatA.getId(), seatA.getName(), false),
-				new SeatStatus(seatB.getId(), seatB.getName(), false),
-				new SeatStatus(seatC.getId(), seatC.getName(), false),
-				new SeatStatus(seatD.getId(), seatD.getName(), false)
+				new SeatStatus(seatA.getId(), seatA.getName(), isOccupancy),
+				new SeatStatus(seatB.getId(), seatB.getName(), isOccupancy),
+				new SeatStatus(seatC.getId(), seatC.getName(), isOccupancy),
+				new SeatStatus(seatD.getId(), seatD.getName(), isOccupancy)
 			);
 			datas.add(tableData);
 		}
