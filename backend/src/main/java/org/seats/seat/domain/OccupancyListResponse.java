@@ -11,12 +11,11 @@ import lombok.NoArgsConstructor;
 @Builder
 public class OccupancyListResponse {
 
-    private Long userId;                // 예약한 user
+	private Long userId;                // 예약한 user
 
-    private Long seatId;                // 예약한 자리 id
+	private Long seatId;                // 예약한 자리 id
 
-    private String seatName;            // 예약한 자리 이름
+	private String seatName;            // 예약한 자리 이름
 
-    private String startTime;           // 예약 시간
-
+	private String startTime;           // 예약 시간
 }

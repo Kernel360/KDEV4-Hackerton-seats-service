@@ -1,9 +1,10 @@
 package org.seats.seat.service;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,6 +13,11 @@ import org.seats.seat.domain.MyOccupancyListResponse;
 import org.seats.seat.domain.OccupancyListResponse;
 import org.seats.seat.domain.OccupancyRequest;
 import org.seats.seat.domain.OccupancyResponse;
+import org.seats.seat.domain.OccupancyTableResponse;
+import org.seats.seat.domain.table.SeatResponse;
+import org.seats.seat.domain.table.SeatStatus;
+import org.seats.seat.domain.table.TableData;
+import org.seats.seat.domain.table.TableHeader;
 import org.seats.seat.entity.Seat;
 import org.seats.seat.entity.SeatOccupancy;
 import org.seats.seat.repository.SeatOccupancyRepository;
@@ -34,26 +40,81 @@ public class SeatOccupancyService {
 	private final SeatOccupancyConverter seatOccupancyConverter;
 
 	// 예약 리스트 전체 조회
-	public List<OccupancyListResponse> getAllList() {
-		// 모든 예약 정보를 조회
-		List<SeatOccupancy> seatOccupancies = seatOccupancyRepository.findAll();
+	public OccupancyTableResponse getOccupancyTable(LocalDate date) {
+		TableHeader header = createTableHeader();
+		List<TableData> datas = createTableData(date);
 
-		return seatOccupancies.stream()
-			.map(occupancy -> {
-				String seatName = occupancy.getSeat().getName();
-				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+		return new OccupancyTableResponse(header, datas);
+	}
 
-				String formattedStartTime = occupancy.getStartTime().format(formatter);
+	private List<TableData> createTableData(LocalDate date) {
+		// 09시부터 10시, 10시부터 11시, ... 19시부터 20시까지 데이터가 1시간 간격으로 생성 되어야 함.
+		List<Seat> seatList = seatRepository.findAll();
 
-				// 필요한 정보를 가지고 OccupancyListResponse 생성
-				return new OccupancyListResponse(
-					occupancy.getUser().getId(),
-					occupancy.getSeat().getId(),
-					seatName,
-					formattedStartTime
-				);
-			})
-			.collect(Collectors.toList());
+		Seat seatA = seatList.get(0);
+		Seat seatB = seatList.get(1);
+		Seat seatC = seatList.get(2);
+		Seat seatD = seatList.get(3);
+
+		List<TableData> datas = new ArrayList<>();
+
+		for (int hour = 9; hour < 20; hour++) {
+			// 종료 시간이 20시가 되어야 하므로, hour가 19일 때 endTime은 20시가 됨.
+			String startTime = String.format("%02d:00", hour);
+			String endTime = String.format("%02d:00", hour + 1);
+
+			TableData tableData = new TableData(
+				startTime,
+				endTime,
+				new SeatStatus(seatA.getId(), seatA.getName(), false),
+				new SeatStatus(seatB.getId(), seatB.getName(), false),
+				new SeatStatus(seatC.getId(), seatC.getName(), false),
+				new SeatStatus(seatD.getId(), seatD.getName(), false)
+			);
+			datas.add(tableData);
+		}
+
+		// 해당 날짜의 시작과 끝을 LocalDateTime으로 변환
+		LocalDateTime startOfDay = date.atStartOfDay();  // 00:00
+		LocalDateTime endOfDay = date.atTime(LocalTime.MAX); // 23:59:59.999999999
+
+		List<SeatOccupancy> seatOccupancyList = seatOccupancyRepository.findByStartTimeBetween(startOfDay, endOfDay);
+		for (SeatOccupancy occupancy : seatOccupancyList) {
+			int occupancyHour = occupancy.getStartTime().getHour();
+			int tableDataIndex = occupancyHour - 9; // 09시 -> index 0, etc.
+
+			TableData tableData = datas.get(tableDataIndex);
+			Long occupancySeatId = occupancy.getSeat().getId();
+
+			if (occupancySeatId.equals(seatA.getId())) {
+				tableData.getSeatA().setOccupancy(true);
+			} else if (occupancySeatId.equals(seatB.getId())) {
+				tableData.getSeatB().setOccupancy(true);
+			} else if (occupancySeatId.equals(seatC.getId())) {
+				tableData.getSeatC().setOccupancy(true);
+			} else if (occupancySeatId.equals(seatD.getId())) {
+				tableData.getSeatD().setOccupancy(true);
+			}
+		}
+
+		return datas;
+	}
+
+	private TableHeader createTableHeader() {
+		List<Seat> seatList = seatRepository.findAll();
+
+		SeatResponse seatA = new SeatResponse(seatList.get(0).getId(), seatList.get(0).getName());
+		SeatResponse seatB = new SeatResponse(seatList.get(1).getId(), seatList.get(1).getName());
+		SeatResponse seatC = new SeatResponse(seatList.get(2).getId(), seatList.get(2).getName());
+		SeatResponse seatD = new SeatResponse(seatList.get(3).getId(), seatList.get(3).getName());
+
+		return new TableHeader(
+			"시간",
+			seatA,
+			seatB,
+			seatC,
+			seatD
+		);
 	}
 
 	// 실시간 예약 현황 보기
@@ -164,11 +225,13 @@ public class SeatOccupancyService {
 	}
 
 	// 삭제하기
-	public void delete(Long id) {
-		SeatOccupancy seatOccupancy = seatOccupancyRepository.findById(id)
-			.orElseThrow(() -> new RuntimeException("일치하는 예약이 없습니다"));
-
-		seatOccupancyRepository.deleteById(id);
+	public void delete(Long seatId, LocalDate startTime, Long userId) {
+		SeatOccupancy seatOccupancy = seatOccupancyRepository.findBySeatIdAndUserIdAndStartTime(
+			seatId, userId, startTime.atStartOfDay());
+		if (seatOccupancy == null) {
+			throw new IllegalStateException("예약을 찾을 수 없습니다.");
+		}
+		seatOccupancyRepository.deleteById(seatOccupancy.getId());
 	}
 
 }
