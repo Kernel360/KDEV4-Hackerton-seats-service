@@ -68,6 +68,7 @@ public class SeatOccupancyService {
 			boolean isOccupancy = hour < currentHour;
 
 			TableData tableData = new TableData(
+				date,
 				startTime,
 				endTime,
 				new SeatStatus(seatA.getId(), seatA.getName(), isOccupancy),
