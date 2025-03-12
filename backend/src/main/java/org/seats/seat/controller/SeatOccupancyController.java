@@ -1,6 +1,8 @@
 package org.seats.seat.controller;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.seats.global.intercetpor.JwtAuth;
@@ -71,7 +73,13 @@ public class SeatOccupancyController {
 	@JwtAuth
 	@DeleteMapping("")
 	public ResponseEntity<?> delete(@RequestBody DeleteRequest request, @RequestAttribute("userId") Long userId) {
-		seatOccupancyService.delete(request.getSeatId(), LocalDate.parse(request.getStartTime()), userId);
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+		seatOccupancyService.delete(
+			request.getSeatId(),
+			LocalDateTime.parse(request.getStartTime(), formatter),
+			userId
+		);
 		return ResponseEntity.noContent().build();
 	}
 
