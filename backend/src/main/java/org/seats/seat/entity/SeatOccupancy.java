@@ -1,28 +1,27 @@
 package org.seats.seat.entity;
 
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
 
-import org.hibernate.annotations.SoftDelete;
 import org.seats.user.entity.User;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Getter
 @Setter
@@ -31,7 +30,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "seat_occcupancy", uniqueConstraints = { @UniqueConstraint(columnNames = {"start_time", "seat_id"})})
+@Table(name = "seat_occcupancy", uniqueConstraints = {@UniqueConstraint(columnNames = {"start_time", "seat_id"})})
 public class SeatOccupancy {
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE)
