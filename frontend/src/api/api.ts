@@ -14,19 +14,19 @@ const api = axios.create({
 export const postSignIn = async (name: string, password: string) => {
   const response = await api.post('/user/signin', { name, password })
   const { accessToken } = response.data
-  localStorage.setItem('accessToken', accessToken) // 로그인 후 JWT 토큰을 로컬스토리지에 저장
+  localStorage.setItem('accessToken', accessToken)
 }
 
 // 회원가입
 export const postSignUp = async (name: string, password: string) => {
   const response = await api.post('/user/signup', { name, password })
   const { accessToken } = response.data
-  localStorage.setItem('accessToken', accessToken) // 회원가입 후 JWT 토큰을 로컬스토리지에 저장
+  localStorage.setItem('accessToken', accessToken)
 }
 
 // JWT 토큰을 로컬스토리지에서 가져오는 함수
 const getAuthToken = () => {
-  return localStorage.getItem('accessToken') // 로컬스토리지에 JWT 토큰을 저장한다고 가정
+  return localStorage.getItem('accessToken')
 }
 
 // 로그인 여부 확인

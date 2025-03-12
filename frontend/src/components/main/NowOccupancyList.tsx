@@ -34,7 +34,6 @@ export default function NowOccupanyList({
         }
       })
 
-      // 상태 업데이트
       setSeats(updatedSeats)
     } catch (error) {
       console.error('현재 예약 현황 ERORR : ', error)
