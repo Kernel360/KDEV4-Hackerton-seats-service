@@ -5,5 +5,8 @@ spring:
     password: seat0310
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: true
+  sql:
+    init:
+      mode: always
