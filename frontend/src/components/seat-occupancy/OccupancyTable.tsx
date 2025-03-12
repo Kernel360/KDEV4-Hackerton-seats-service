@@ -11,118 +11,126 @@ import { OccupancyCardProps } from './OccupancyCard'
 import { useEffect, useState } from 'react'
 //import { getOccupancyList } from '@/api/api'
 import { Occupancy } from '@/api/types/occupancy'
+import api from '@/api/api'
 
-type OccupancyTableProps = {
-  onOccupancy: (newOccupancy: Omit<OccupancyCardProps, 'onDelete'>) => void
-  existingReservations?: OccupancyCardProps[]
+type Seat = {
+  seatId: number
+  seatName: string
 }
 
-const TABLES = ['테이블 A', '테이블 B', '테이블 C', '테이블 D'] as const
-type TableName = (typeof TABLES)[number]
+type SeatStatus = {
+  seatId: number
+  seatName: string
+  occupancy: boolean
+}
 
-const TIME_SLOTS = [
-  { startTime: '9:00', endTime: '10:00' },
-  { startTime: '10:00', endTime: '11:00' },
-  { startTime: '11:00', endTime: '12:00' },
-  { startTime: '12:00', endTime: '13:00' },
-  { startTime: '13:00', endTime: '14:00' },
-  { startTime: '14:00', endTime: '15:00' },
-  { startTime: '15:00', endTime: '16:00' },
-  { startTime: '16:00', endTime: '17:00' },
-  { startTime: '17:00', endTime: '18:00' },
-  { startTime: '18:00', endTime: '19:00' },
-  { startTime: '19:00', endTime: '20:00' }
-] as const
+type TableHeader = {
+  time: string
+  seatA: Seat
+  seatB: Seat
+  seatC: Seat
+  seatD: Seat
+}
+
+type TableData = {
+  date: string
+  startTime: string
+  endTime: string
+  seatA: SeatStatus
+  seatB: SeatStatus
+  seatC: SeatStatus
+  seatD: SeatStatus
+}
+
+type OccupancyTableProps = {
+  onReservationSuccess: () => void
+}
 
 export default function OccupancyTable({
-  onOccupancy,
-  existingReservations = []
+  onReservationSuccess
 }: OccupancyTableProps) {
-  const [occupancyList, setOccupancyList] = useState<Occupancy[]>([])
+  const [tableHeaderData, setTableHeaderData] = useState<TableHeader>()
+  const [tableData, setTableData] = useState<TableData[]>([])
 
-  useEffect(() => {
-    const fetchOccupancyList = async () => {
-      try {
-        //const response = await getOccupancyList()
-        //setOccupancyList(response.occupancyList)
-      } catch (error) {
-        console.error('Failed to fetch occupancy list:', error)
-      }
+  const fetchOccupancyList = async () => {
+    try {
+      const response = await api.get('/seats/occupancy')
+      setTableHeaderData(response.data.tableHeader)
+      setTableData(response.data.tableData)
+      //const response = await getOccupancyList()
+      //setOccupancyList(response.occupancyList)
+    } catch (error) {
+      console.error(error)
     }
-
-    fetchOccupancyList()
-  }, [])
-
-  function isTimeSlotReserved(tableName: TableName, startTime: string) {
-    // API에서 받은 예약 데이터 확인
-    const isOccupied = occupancyList.some(
-      occupancy =>
-        occupancy.seatName === tableName &&
-        occupancy.startTime.includes(startTime)
-    )
-
-    // 사용자의 예약 데이터 확인
-    const isUserReserved = existingReservations.some(
-      res => res.name === tableName && res.startTime === startTime
-    )
-
-    return isOccupied || isUserReserved
   }
 
-  function handleOccupancy(
-    tableName: TableName,
-    startTime: string,
-    endTime: string
-  ) {
-    if (isTimeSlotReserved(tableName, startTime)) {
-      alert('이미 예약된 시간입니다.')
-      return
-    }
+  useEffect(() => {
+    fetchOccupancyList()
+  }, [tableData])
 
-    onOccupancy({
-      id: Date.now(),
-      name: tableName,
-      startTime,
-      endTime
-    })
+  const handleReserve = async (
+    seatId: number,
+    date: string,
+    startTime: string
+  ) => {
+    try {
+      const response = await api.post('/seats/occupancy', {
+        seatId,
+        startTime: `${date} ${startTime}`
+      })
+
+      // 예약 성공 시 onReservationSuccess 호출
+      onReservationSuccess()
+      fetchOccupancyList()
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   const tableHeader = () => (
     <TableHead>
       <TableRow>
-        <TableCell>시간</TableCell>
-        {TABLES.map(tableName => (
-          <TableCell key={tableName}>{tableName}</TableCell>
-        ))}
+        <TableCell>{tableHeaderData?.time}</TableCell>
+        <TableCell>{tableHeaderData?.seatA.seatName}</TableCell>
+        <TableCell>{tableHeaderData?.seatB.seatName}</TableCell>
+        <TableCell>{tableHeaderData?.seatC.seatName}</TableCell>
+        <TableCell>{tableHeaderData?.seatD.seatName}</TableCell>
       </TableRow>
     </TableHead>
   )
 
   const tableBody = () => (
     <TableBody>
-      {TIME_SLOTS.map((row, index) => (
+      {tableData.map((row, index) => (
         <TableRow key={index}>
           <TableCell>
             {row.startTime} ~ {row.endTime}
           </TableCell>
-          {TABLES.map(tableName => (
-            <TableCell key={`${tableName}-${row.startTime}`}>
-              <Button
-                sx={{ width: '80px' }}
-                variant="outlined"
-                disabled={isTimeSlotReserved(tableName, row.startTime)}
-                onClick={() =>
-                  handleOccupancy(tableName, row.startTime, row.endTime)
-                }>
-                {isTimeSlotReserved(tableName, row.startTime)
-                  ? '예약중'
-                  : '예약'}
-              </Button>
-            </TableCell>
-          ))}
+          <TableCell>
+            {reserveButton(row.seatA, row.date, row.startTime)}
+          </TableCell>
+          <TableCell>
+            {reserveButton(row.seatB, row.date, row.startTime)}
+          </TableCell>
+          <TableCell>
+            {reserveButton(row.seatC, row.date, row.startTime)}
+          </TableCell>
+          <TableCell>
+            {reserveButton(row.seatD, row.date, row.startTime)}
+          </TableCell>
         </TableRow>
       ))}
     </TableBody>
+  )
+
+  const reserveButton = (seat: SeatStatus, date: string, startTime: string) => (
+    <Button
+      variant="outlined"
+      disabled={seat.occupancy}
+      sx={{ width: '100px' }}
+      onClick={() => handleReserve(seat.seatId, date, startTime)}>
+      {seat.occupancy ? '예약 불가' : '예약'}
+    </Button>
   )
 
   return (

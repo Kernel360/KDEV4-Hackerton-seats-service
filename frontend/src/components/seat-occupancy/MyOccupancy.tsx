@@ -14,8 +14,21 @@ export type OccupancyCardProps = {
   onDelete: (seatId: number, startTime: string) => void
 }
 
-export default function MyOccupancy() {
+export default function MyOccupancy({
+  isReservationSuccess,
+  setIsReservationSuccess
+}: {
+  isReservationSuccess: boolean
+  setIsReservationSuccess: (isReservationSuccess: boolean) => void
+}) {
   const [occupancyCards, setOccupancyCards] = useState<OccupancyCardProps[]>([])
+
+  useEffect(() => {
+    if (isReservationSuccess) {
+      getUserOccupancy()
+      setIsReservationSuccess(false)
+    }
+  }, [isReservationSuccess])
 
   const getUserOccupancy = async () => {
     const response = await api.get(`/seats/occupancy/my`)

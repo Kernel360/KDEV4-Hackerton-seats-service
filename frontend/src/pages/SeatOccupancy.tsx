@@ -1,7 +1,15 @@
 import MyOccupancy from '@/components/seat-occupancy/MyOccupancy'
+import OccupancyTable from '@/components/seat-occupancy/OccupancyTable'
 import { Button, Stack } from '@mui/material'
+import { useState } from 'react'
 
 export default function SeatOccupancy() {
+  const [isReservationSuccess, setIsReservationSuccess] = useState(false)
+
+  const handleReservationSuccess = () => {
+    setIsReservationSuccess(true)
+  }
+
   const dateFilter = () => {
     return (
       <Stack
@@ -22,13 +30,19 @@ export default function SeatOccupancy() {
         spacing={2}
         width={'65%'}>
         {dateFilter()}
-        {/* <OccupancyTable /> */}
+        <OccupancyTable
+          onReservationSuccess={handleReservationSuccess}
+          setIsReservationSuccess={setIsReservationSuccess}
+        />
       </Stack>
       <Stack
         direction="row"
         spacing={2}
         width={'35%'}>
-        <MyOccupancy />
+        <MyOccupancy
+          isReservationSuccess={isReservationSuccess}
+          setIsReservationSuccess={setIsReservationSuccess}
+        />
       </Stack>
     </Stack>
   )
